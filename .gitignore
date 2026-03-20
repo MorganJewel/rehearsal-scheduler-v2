@@ -1,0 +1,254 @@
+# ============================================================
+# REHEARSAL SCHEDULER - GITIGNORE
+# Prevents accidental commit of secrets, dependencies, etc.
+# ============================================================
+
+# ============================================================
+# ENVIRONMENT & SECRETS (CRITICAL - NEVER COMMIT)
+# ============================================================
+.env
+.env.local
+.env.*.local
+.env.production.local
+.env.development.local
+.env.test.local
+
+# Secret key files
+*.pem
+*.key
+*.keystore
+*.jks
+
+# IDE secrets
+.idea/deployment.xml
+.idea/dataSources.xml
+.vscode/settings.local.json
+
+# ============================================================
+# DEPENDENCIES
+# ============================================================
+node_modules/
+npm-debug.log
+npm-debug.log.*
+yarn-error.log
+yarn-error.log.*
+pnpm-error.log
+pnpm-error.log.*
+
+# ============================================================
+# BUILD OUTPUTS
+# ============================================================
+dist/
+build/
+out/
+*.bundle.js
+.next/
+.nuxt/
+
+# ============================================================
+# TESTING
+# ============================================================
+coverage/
+.nyc_output/
+*.lcov
+test-results/
+playwright-report/
+.playwright/
+
+# ============================================================
+# IDE & EDITOR FILES
+# ============================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+.eclipse/
+.c9/
+*.iml
+
+# ============================================================
+# OS FILES
+# ============================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ============================================================
+# TEMPORARY FILES
+# ============================================================
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
+*.log
+*.gz
+*.zip
+
+# ============================================================
+# BACKUP FILES
+# ============================================================
+backups/
+*.sql
+database-*.sql
+dump*.sql
+
+# Only commit schema, not data dumps
+!docs/technical/database-schema.sql
+
+# ============================================================
+# LOCAL DEVELOPMENT
+# ============================================================
+.env.local.bak
+.env.local.old
+local-data/
+dev-notes/
+*.scratch.js
+
+# ============================================================
+# DEBUGGING
+# ============================================================
+debug.log
+debug/
+debugger-saves/
+
+# ============================================================
+# CACHE FILES
+# ============================================================
+.cache/
+.eslintcache
+.prettierignore
+.husky/
+node_modules/.cache
+
+# ============================================================
+# SYSTEM FILES
+# ============================================================
+*.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+Gemfile.lock
+
+# Lock files CAN be committed for reproducibility
+# But node_modules folder should NOT be committed
+# Decision: Allow lock files, ignore node_modules
+!/package-lock.json
+
+# ============================================================
+# PRODUCTION BUILDS
+# ============================================================
+dist/
+build/
+out/
+.next/
+
+# ============================================================
+# DOCKER
+# ============================================================
+.dockerignore
+docker-compose.override.yml
+
+# ============================================================
+# CI/CD
+# ============================================================
+.github/workflows/*.local.yml
+.github/secrets.json
+
+# ============================================================
+# MONITORING & LOGS
+# ============================================================
+logs/
+*.log
+*.log.*
+sentry.properties
+
+# ============================================================
+# DATABASE
+# ============================================================
+*.db
+*.sqlite
+*.sqlite3
+*.db3
+
+# ============================================================
+# UPLOADS & USER DATA
+# ============================================================
+uploads/
+user-data/
+media/
+public/uploads/
+
+# ============================================================
+# GENERATED FILES (Commit these, but often regenerated)
+# ============================================================
+# Only ignore if truly temporary
+# Keep version-controlled generated files tracked
+
+# ============================================================
+# VITE / BUILD TOOLS
+# ============================================================
+.vite-plugin-virtual.json
+dist-ssr/
+
+# ============================================================
+# CONFIGURATION OVERRIDES
+# ============================================================
+.env.local.override
+jest.config.local.js
+vite.config.local.js
+
+# ============================================================
+# COMMENTS & NOTES
+# ============================================================
+# Keep these tracked if they're in docs/
+# Only ignore if in root or src/
+notes/
+todo.txt
+*.TODO
+*.FIXME
+
+# ============================================================
+# SECURITY AUDIT FILES
+# ============================================================
+audit-log.json
+security-scan-*.json
+
+# ============================================================
+# WHITELIST: Force-include these despite patterns above
+# ============================================================
+# !.env.example - DO include environment template
+# !public/ - DO include public assets
+# !docs/ - DO include documentation
+
+# ============================================================
+# FINAL SAFETY CHECK
+# ============================================================
+#
+# NEVER COMMIT:
+# - .env* files with actual secrets
+# - Private keys (*.pem, *.key)
+# - Database dumps with real data
+# - API keys or credentials
+# - node_modules/ folder
+# - Build artifacts from dist/
+#
+# ALWAYS COMMIT:
+# - .env.example (template only)
+# - package.json and package-lock.json
+# - Source code in src/
+# - Tests in frontend-tests/
+# - Documentation in docs/
+# - Configuration files (.gitignore, .prettierrc, etc.)
+#
+# ============================================================

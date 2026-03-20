@@ -1,0 +1,235 @@
+name: Daily Backup & Verification
+
+on:
+  schedule:
+    # Run at 2 AM UTC every day
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    # Allow manual trigger from GitHub UI
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Export database schema
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          npm run db:export:schema
+          ls -lh database-schema-*.sql
+
+      - name: Export production data (non-sensitive)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          npm run db:export:data
+          ls -lh database-data-*.sql
+
+      - name: Create backup archive
+        run: |
+          mkdir -p backups
+          BACKUP_DATE=$(date +%Y%m%d-%H%M%S)
+          tar -czf backups/rehearsal-scheduler-backup-${BACKUP_DATE}.tar.gz \
+            database-schema-*.sql \
+            database-data-*.sql \
+            docs/
+          ls -lh backups/
+
+      - name: Encrypt backup
+        env:
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+        run: |
+          # Use GPG to encrypt backup
+          echo "${BACKUP_ENCRYPTION_KEY}" | gpg --batch --passphrase-fd 0 \
+            --cipher-algo AES256 \
+            --symmetric \
+            backups/rehearsal-scheduler-backup-*.tar.gz
+          rm -f backups/rehearsal-scheduler-backup-*.tar.gz
+          ls -lh backups/
+
+      - name: Upload to GitHub Releases (draft)
+        uses: softprops/action-gh-release@v1
+        with:
+          files: backups/*.tar.gz.gpg
+          draft: true
+          prerelease: false
+          tag_name: backup-${{ github.run_id }}
+          body: |
+            Automated backup from GitHub Actions
+            Date: ${{ github.event.schedule }}
+            Encrypted with AES-256 GPG
+            
+            To restore:
+            1. Download the .tar.gz.gpg file
+            2. gpg --decrypt backup-*.tar.gz.gpg > backup.tar.gz
+            3. tar -xzf backup.tar.gz
+            4. Import SQL files to Supabase
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify backup integrity
+        run: |
+          npm run backup:verify
+          echo "✅ Backup verification complete"
+
+      - name: Notify on success
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ Daily backup completed successfully'
+            })
+
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.setFailed('❌ Backup failed - check logs immediately')
+            github.rest.repos.createDispatchEvent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              event_type: 'backup-failed',
+              client_payload: {
+                run_id: context.runId,
+                workflow: context.workflow
+              }
+            })
+
+  weekly-full-backup:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 2 * * 0'  # Sunday only
+    timeout-minutes: 60
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Export full database with all data
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          npm run db:export:full
+          # This includes sensitive data for recovery purposes
+
+      - name: Create full archive
+        run: |
+          BACKUP_DATE=$(date +%Y%m%d)
+          tar -czf full-backup-${BACKUP_DATE}.tar.gz *.sql docs/
+          ls -lh full-backup-*.tar.gz
+
+      - name: Encrypt full backup
+        env:
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+        run: |
+          gpg --batch --yes --passphrase="${BACKUP_ENCRYPTION_KEY}" \
+            --cipher-algo AES256 \
+            --symmetric \
+            full-backup-*.tar.gz
+          rm -f full-backup-*.tar.gz
+
+      - name: Upload to secure GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: full-backup-*.tar.gz.gpg
+          draft: true
+          prerelease: false
+          tag_name: weekly-backup-${{ github.run_id }}
+          body: |
+            Weekly full backup (SENSITIVE DATA - ENCRYPTED)
+            Date: ${{ github.event.schedule }}
+            Includes: Complete database + all user data
+            Encryption: AES-256 GPG
+            Retention: 12 months
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cleanup old backups
+        run: |
+          # Keep only last 12 months of weekly backups
+          npm run scripts/cleanup-old-backups.js
+
+  test-restore:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Create test Supabase project
+        env:
+          SUPABASE_URL_TEST: ${{ secrets.SUPABASE_URL_TEST }}
+          SUPABASE_SERVICE_KEY_TEST: ${{ secrets.SUPABASE_SERVICE_KEY_TEST }}
+        run: |
+          echo "Creating test database..."
+          npm run scripts/create-test-db.js
+
+      - name: Restore backup to test database
+        env:
+          SUPABASE_URL_TEST: ${{ secrets.SUPABASE_URL_TEST }}
+          SUPABASE_SERVICE_KEY_TEST: ${{ secrets.SUPABASE_SERVICE_KEY_TEST }}
+        run: |
+          npm run scripts/restore-to-test-db.js
+
+      - name: Validate restored data
+        env:
+          SUPABASE_URL_TEST: ${{ secrets.SUPABASE_URL_TEST }}
+          SUPABASE_SERVICE_KEY_TEST: ${{ secrets.SUPABASE_SERVICE_KEY_TEST }}
+        run: |
+          npm run scripts/validate-restore.js
+
+      - name: Run tests on restored database
+        env:
+          SUPABASE_URL_TEST: ${{ secrets.SUPABASE_URL_TEST }}
+          SUPABASE_SERVICE_KEY_TEST: ${{ secrets.SUPABASE_SERVICE_KEY_TEST }}
+        run: |
+          npm run test:e2e
+
+      - name: Cleanup test database
+        if: always()
+        env:
+          SUPABASE_URL_TEST: ${{ secrets.SUPABASE_URL_TEST }}
+          SUPABASE_SERVICE_KEY_TEST: ${{ secrets.SUPABASE_SERVICE_KEY_TEST }}
+        run: |
+          npm run scripts/delete-test-db.js
+
+      - name: Report results
+        if: success()
+        run: |
+          echo "✅ Backup restoration test PASSED"
+          echo "Data integrity verified on test database"
