@@ -8,7 +8,7 @@ export const saveSchedule = async (scheduleName, scheduleBlocks, userId) => {
     const { data, error } = await window.supabaseDb
       .from('rehearsal_sessions')
       .insert({
-        production_id: '00000000-0000-0000-0000-000000000000', // Placeholder
+        production_id: '00000000-0000-0000-0000-000000000000',
         session_date: new Date().toISOString().split('T')[0],
         start_time: '09:00:00',
         end_time: '17:00:00',
