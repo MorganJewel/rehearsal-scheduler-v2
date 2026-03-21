@@ -1,4 +1,4 @@
-# 🎭 Rehearsal Scheduler v2
+# Rehearsal Scheduler v2
 
 **Enterprise-grade rehearsal scheduling platform for theater productions with team collaboration, real-time coordination, and accessibility (WCAG AAA).**
 
@@ -10,7 +10,7 @@
 
 ---
 
-## 🎯 What is Rehearsal Scheduler?
+## What is Rehearsal Scheduler?
 
 A web application that helps theater directors, stage managers, and production teams organize rehearsals with:
 
@@ -31,7 +31,7 @@ A web application that helps theater directors, stage managers, and production t
 
 ---
 
-## ✨ Key Features (Phase 1)
+## Key Features (Phase 1)
 
 ### Scheduling & Time Management
 - Real-time session timer with visual countdown
@@ -69,30 +69,29 @@ A web application that helps theater directors, stage managers, and production t
 
 ---
 
-## 🔒 Security & Compliance
+## Security & Compliance
 
 ### Enterprise-Grade Security
-- ✅ Row-Level Security (RLS) on all database tables
-- ✅ Encryption at rest (AES-256)
-- ✅ TLS 1.3 for all communications
-- ✅ JWT token-based authentication
-- ✅ Rate limiting & DDoS protection
-- ✅ Audit logging on all changes
-- ✅ Automated daily backups (encrypted, GitHub-stored)
-- ✅ API key rotation (monthly)
-- ✅ No hardcoded secrets in code
-- ✅ GitHub Secrets for production credentials
+- Row-Level Security (RLS) on all database tables
+- Encryption at rest (AES-256)
+- TLS 1.3 for all communications
+- JWT token-based authentication
+- Rate limiting & DDoS protection
+- Audit logging on all changes
+- Automated daily backups (encrypted, GitHub-stored)
+- API key rotation (monthly)
+- No hardcoded secrets in code
+- GitHub Secrets for production credentials
 
 ### Compliance
-- ✅ WCAG AAA accessibility
-- ✅ OWASP Top 10 mitigation
-- ✅ SOC 2 Type II ready
-- ✅ GDPR compliant (EU data residency available)
-- ✅ User data export & deletion capabilities
+- WCAG AAA accessibility
+- OWASP Top 10 mitigation
+- SOC 2 Type II ready
+- User data export & deletion capabilities
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Node.js 18+ 
@@ -135,7 +134,7 @@ A web application that helps theater directors, stage managers, and production t
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 rehearsal-scheduler-v2/
@@ -205,7 +204,7 @@ npm run backup:restore   # Restore from backup
 
 ---
 
-## 📊 Technology Stack
+## Technology Stack
 
 ### Frontend
 - **HTML/CSS/JavaScript** - Pure vanilla (no frameworks yet)
@@ -230,7 +229,7 @@ npm run backup:restore   # Restore from backup
 
 ---
 
-## 🔐 Security Highlights
+## Security Highlights
 
 ### Design Principles
 1. **Zero Trust Architecture** - Never assume requests are safe
@@ -255,27 +254,27 @@ npm run backup:restore   # Restore from backup
 
 Designed for all users, including those with disabilities:
 
-- ✅ Keyboard navigation (full site usable without mouse)
-- ✅ Screen reader support (ARIA labels, semantic HTML)
-- ✅ Color contrast (7:1 ratio for AAA compliance)
-- ✅ Focus indicators (visible keyboard focus)
-- ✅ Readable text (minimum 14px font)
-- ✅ Captions & transcripts (for video content)
-- ✅ No auto-advancing content
-- ✅ Skip navigation links
+- Keyboard navigation (full site usable without mouse)
+- Screen reader support (ARIA labels, semantic HTML)
+- Color contrast (7:1 ratio for AAA compliance)
+- Focus indicators (visible keyboard focus)
+- Readable text (minimum 14px font)
+- Captions & transcripts (for video content)
+- No auto-advancing content
+- Skip navigation links
 
 ---
 
-## 📈 Roadmap
+## Roadmap
 
 ### Phase 1: MVP (Current - Week 7)
-- ✅ 22 core features
-- ✅ User authentication
-- ✅ Production management
-- ✅ Session scheduling
-- ✅ Real-time timer
-- ✅ WCAG AAA accessibility
-- ✅ 80%+ test coverage
+- 22 core features
+- User authentication
+- Production management
+- Session scheduling
+- Real-time timer
+- WCAG AAA accessibility
+- 80%+ test coverage
 
 ### Phase 2: Advanced Features (Post-Launch)
 - Blocking visualization tool (animated stage movements)
@@ -293,7 +292,7 @@ Designed for all users, including those with disabilities:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
 - Development setup
@@ -312,7 +311,7 @@ We welcome contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 ---
 
-## 📝 License
+## License
 
 MIT License - see [LICENSE](LICENSE) for details
 
@@ -320,7 +319,7 @@ This means you can use, modify, and distribute this code freely for commercial o
 
 ---
 
-## 📞 Support & Community
+## Support & Community
 
 ### Documentation
 - [Setup Guide](SETUP.md) - Get started in 1 hour
@@ -336,7 +335,7 @@ This means you can use, modify, and distribute this code freely for commercial o
 
 ---
 
-## ❓ FAQ
+## FAQ
 
 ### Is this free?
 Yes! Rehearsal Scheduler is open source (MIT license). It's free to use, modify, and distribute.
@@ -371,7 +370,7 @@ Phase 2 will include a public API. Currently, you can:
 
 ---
 
-## 🎬 Real-World Example
+## Real-World Example
 
 **Scenario**: A 10-person theater company producing "Hamlet"
 
@@ -407,7 +406,7 @@ Phase 2 will include a public API. Currently, you can:
 
 ---
 
-## 📊 Project Stats
+## Project Stats
 
 | Metric | Value |
 |--------|-------|
@@ -422,7 +421,7 @@ Phase 2 will include a public API. Currently, you can:
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 Built with consideration for:
 - Theater professionals & their workflows
@@ -437,17 +436,15 @@ Special thanks to:
 
 ---
 
-## 📧 Contact
+## Contact
 
-- **Project Lead**: [Your Name]
-- **Email**: [your.email@example.com]
-- **GitHub**: [Your GitHub Profile]
-- **Website**: [Project Website]
+- **Project Lead**: Morgan Jewel
+- **GitHub**: MorganJewel
 
 ---
 
-**Made with ❤️ for theater professionals everywhere** 🎭
+**Made with love for theater professionals everywhere** 
 
-*Last Updated: February 14, 2026*  
+*Last Updated: March 20, 2026*  
 *Version: 2.0.0*  
 *Status: Phase 1 - Enterprise Foundation Complete*
