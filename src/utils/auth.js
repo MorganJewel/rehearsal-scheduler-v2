@@ -21,7 +21,29 @@ export const getCurrentUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
     
-    const { data } = await supabase.from('users').select('*').eq('id', user.id).single();
+    const { data, error } = await supabase.from('users').select('*').eq('id', user.id).single();
+    
+    if (error) {
+      // User doesn't exist in database, create them
+      console.log('Creating user profile...');
+      const { data: newUser, error: createError } = await supabase
+        .from('users')
+        .insert({
+          id: user.id,
+          email: user.email,
+          full_name: user.user_metadata?.full_name || user.email.split('@')[0],
+          role: 'actor'
+        })
+        .select()
+        .single();
+      
+      if (createError) {
+        console.error('Error creating user:', createError);
+        return null;
+      }
+      return newUser;
+    }
+    
     return data;
   } catch (error) {
     console.error('Error getting user:', error);
