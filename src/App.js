@@ -223,30 +223,37 @@ const attachAuthListeners = () => {
         if (error) throw error;
         
         // Create user profile in database
-        const { error: profileError } = await window.supabaseAuth.createUserProfile({
-          id: user.id,
-          email: user.email,
-          full_name: fullName,
-          role: 'director' // Default role
-        });
+        const { error: profileError } = await window.supabaseDb
+          .from('users')
+          .insert({
+            id: user.id,
+            email: user.email,
+            full_name: fullName,
+            role: 'actor'
+          });
         
-        if (profileError) throw profileError;
+        if (profileError && profileError.code !== 'PGRST116') throw profileError;
         
-        errorMessage.textContent = 'Account created! Please check your email to verify.';
+        errorMessage.textContent = 'Account created! Check your email to verify, then sign in.';
         errorMessage.className = 'success-message';
       } else {
         // Sign in
-        const { user, error } = await window.supabaseAuth.signInWithPassword({
+        const { data, error } = await window.supabaseAuth.signInWithPassword({
           email,
           password
         });
         
         if (error) throw error;
+        if (!data.user) throw new Error('No user returned');
         
         // Get user profile
         currentUser = await getCurrentUser();
-        renderPage();
-        return;
+        if (currentUser) {
+          renderPage();
+          return;
+        } else {
+          throw new Error('Could not load user profile');
+        }
       }
     } catch (error) {
       errorMessage.textContent = error.message || 'Authentication failed';
@@ -300,7 +307,7 @@ const init = async () => {
     console.error('Initialization error:', error);
     document.getElementById('app').innerHTML = `
       <div class="error-container">
-        <p>❌ Failed to initialize application</p>
+        <p>Failed to initialize application</p>
         <p>${error.message}</p>
       </div>
     `;
