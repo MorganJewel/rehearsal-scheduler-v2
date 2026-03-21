@@ -492,11 +492,32 @@ p { margin-bottom: 1rem; }
   margin: 0;
 }
 
-.schedule-section {
-  background: var(--bg-primary);
-  padding: 2rem;
+.save-schedule {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.save-schedule h3 {
+  color: var(--color-primary);
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.schedule-name-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--border-color);
   border-radius: var(--border-radius);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 0.95rem;
+  font-family: var(--font-sans);
+  margin-bottom: 0.75rem;
+  transition: border-color 0.2s;
+}
+
+.schedule-name-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
 }
 
 .schedule-section h3 {
@@ -596,7 +617,70 @@ p { margin-bottom: 1rem; }
   transform: translateY(0);
 }
 
-@media (max-width: 1024px) {
+.saved-schedules {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.saved-schedules h3 {
+  color: var(--color-primary);
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.saved-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.saved-schedule-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-left: 4px solid var(--color-success);
+  border-radius: 4px;
+}
+
+.sched-info {
+  flex: 1;
+}
+
+.sched-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.25rem 0;
+}
+
+.sched-date {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.btn-small {
+  padding: 0.5rem 1rem;
+  background: var(--color-success);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-small:hover {
+  background: #2d5009;
+  transform: translateY(-2px);
+}
+
+.btn-small:active {
+  transform: translateY(0);
+}
   .scheduler-container {
     grid-template-columns: 1fr;
   }

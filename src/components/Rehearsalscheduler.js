@@ -3,6 +3,8 @@
 // Displays schedule blocks and auto-advances through them
 // ============================================================
 
+import { saveSchedule, loadSchedules } from '../utils/scheduleDb.js';
+
 export const RehearsalScheduler = () => {
   // Sample schedule for testing
   const schedule = [
@@ -120,6 +122,17 @@ export const RehearsalScheduler = () => {
         </div>
 
         <p class="timer-info">Click START to begin. Timer auto-advances to next block.</p>
+
+        <div class="save-schedule">
+          <h3>💾 Save This Schedule</h3>
+          <input 
+            type="text" 
+            id="scheduleName" 
+            placeholder="Enter schedule name (e.g., 'Act 1 Blocking')"
+            class="schedule-name-input"
+          />
+          <button class="btn-primary" id="saveScheduleBtn">Save Schedule</button>
+        </div>
       </div>
 
       <div class="schedule-section">
@@ -136,14 +149,20 @@ export const RehearsalScheduler = () => {
             </div>
           `).join('')}
         </div>
+
+        <div class="saved-schedules">
+          <h3>📚 Saved Schedules</h3>
+          <div id="savedSchedulesList" class="saved-list">
+            <p class="placeholder">No saved schedules yet</p>
+          </div>
+        </div>
       </div>
     </div>
   `;
 
   // Attach event listeners
-  setTimeout(() => {
+  setTimeout(async () => {
     document.getElementById('startBtn')?.addEventListener('click', () => {
-      // If no block selected yet, start from block 0. Otherwise continue current block
       if (currentBlockIndex === 0 && timeRemaining === 0) {
         startBlock(0, true);
       } else {
@@ -156,11 +175,51 @@ export const RehearsalScheduler = () => {
     document.querySelectorAll('.btn-block').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const idx = parseInt(e.target.dataset.index);
-        stopTimer(); // Stop current timer first
-        startBlock(idx, false); // Jump to block but don't auto-start
+        stopTimer();
+        startBlock(idx, false);
       });
     });
+
+    // Save schedule button
+    document.getElementById('saveScheduleBtn')?.addEventListener('click', async () => {
+      const name = document.getElementById('scheduleName')?.value;
+      if (!name) {
+        alert('Please enter a schedule name');
+        return;
+      }
+      const result = await saveSchedule(name, schedule, 'current-user');
+      if (result.success) {
+        alert('✅ Schedule saved!');
+        document.getElementById('scheduleName').value = '';
+        loadSavedSchedules();
+      } else {
+        alert('❌ Error saving schedule');
+      }
+    });
+
+    // Load saved schedules on init
+    loadSavedSchedules();
   }, 100);
+
+  const loadSavedSchedules = async () => {
+    const schedules = await loadSchedules();
+    const list = document.getElementById('savedSchedulesList');
+    
+    if (schedules.length === 0) {
+      list.innerHTML = '<p class="placeholder">No saved schedules yet</p>';
+      return;
+    }
+
+    list.innerHTML = schedules.map(sched => `
+      <div class="saved-schedule-item">
+        <div class="sched-info">
+          <p class="sched-name">${sched.session_type}</p>
+          <p class="sched-date">${new Date(sched.session_date).toLocaleDateString()}</p>
+        </div>
+        <button class="btn-small" data-id="${sched.id}">Load</button>
+      </div>
+    `).join('');
+  };
 
   return HTML;
 };
