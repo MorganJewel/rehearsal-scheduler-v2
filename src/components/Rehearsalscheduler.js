@@ -3,9 +3,59 @@
 // Displays schedule blocks and auto-advances through them
 // ============================================================
 
-import { saveSchedule, loadSchedules } from '../utils/scheduleDb.js';
-
 export const RehearsalScheduler = () => {
+  // Database functions (inline)
+  const saveSchedule = async (scheduleName, scheduleBlocks, userId) => {
+    try {
+      // Create a temporary production first if needed
+      const { data: prodData, error: prodError } = await window.supabaseDb
+        .from('productions')
+        .insert({
+          owner_id: userId || '00000000-0000-0000-0000-000000000000',
+          title: 'Temp Production',
+          acts: 1
+        })
+        .select();
+
+      const productionId = prodData?.[0]?.id || '00000000-0000-0000-0000-000000000000';
+
+      const { data, error } = await window.supabaseDb
+        .from('rehearsal_sessions')
+        .insert({
+          production_id: productionId,
+          session_date: new Date().toISOString().split('T')[0],
+          start_time: '09:00:00',
+          end_time: '17:00:00',
+          session_type: 'custom',
+          location: 'Studio',
+          notes: JSON.stringify(scheduleBlocks)
+        })
+        .select();
+
+      if (error) throw error;
+      console.log('✅ Schedule saved:', scheduleName);
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error saving schedule:', error);
+      return { success: false, error };
+    }
+  };
+
+  const loadSchedules = async () => {
+    try {
+      const { data, error } = await window.supabaseDb
+        .from('rehearsal_sessions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      console.log('✅ Schedules loaded:', data.length);
+      return data || [];
+    } catch (error) {
+      console.error('Error loading schedules:', error);
+      return [];
+    }
+  };
   // Sample schedule for testing
   const schedule = [
     { id: 1, name: 'Scene 1: Opening', duration: 15, type: 'scene' },
