@@ -19,34 +19,25 @@ export const initializeAuth = async () => {
 export const getCurrentUser = async () => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
     
-    const { data, error } = await supabase.from('users').select('*').eq('id', user.id).single();
-    
-    if (error) {
-      // User doesn't exist in database, create them
-      console.log('Creating user profile...');
-      const { data: newUser, error: createError } = await supabase
-        .from('users')
-        .insert({
-          id: user.id,
-          email: user.email,
-          full_name: user.user_metadata?.full_name || user.email.split('@')[0],
-          role: 'actor'
-        })
-        .select()
-        .single();
-      
-      if (createError) {
-        console.error('Error creating user:', createError);
-        return null;
-      }
-      return newUser;
+    if (!user) {
+      console.log('No authenticated user found');
+      return null;
     }
     
-    return data;
+    console.log('✅ User authenticated:', user.email);
+    
+    // Return auth user data directly (don't touch database)
+    return {
+      id: user.id,
+      email: user.email,
+      full_name: user.user_metadata?.full_name || user.email.split('@')[0],
+      role: 'actor',
+      timezone: 'UTC',
+      is_active: true
+    };
   } catch (error) {
-    console.error('Error getting user:', error);
+    console.error('Error in getCurrentUser:', error);
     return null;
   }
 };
