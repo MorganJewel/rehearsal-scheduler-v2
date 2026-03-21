@@ -18,13 +18,13 @@ export const RehearsalScheduler = () => {
   let isRunning = false;
   let timerInterval = null;
 
-  const startBlock = (blockIndex) => {
+  const startBlock = (blockIndex, autoStart = true) => {
     currentBlockIndex = blockIndex;
     const block = schedule[blockIndex];
     timeRemaining = block.duration * 60; // Convert to seconds
-    isRunning = true;
+    isRunning = autoStart;
     updateDisplay();
-    startTimer();
+    if (autoStart) startTimer();
   };
 
   const startTimer = () => {
@@ -142,14 +142,22 @@ export const RehearsalScheduler = () => {
 
   // Attach event listeners
   setTimeout(() => {
-    document.getElementById('startBtn')?.addEventListener('click', () => startBlock(0));
+    document.getElementById('startBtn')?.addEventListener('click', () => {
+      // If no block selected yet, start from block 0. Otherwise continue current block
+      if (currentBlockIndex === 0 && timeRemaining === 0) {
+        startBlock(0, true);
+      } else {
+        resumeTimer();
+      }
+    });
     document.getElementById('pauseBtn')?.addEventListener('click', pauseTimer);
     document.getElementById('stopBtn')?.addEventListener('click', stopTimer);
     
     document.querySelectorAll('.btn-block').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const idx = parseInt(e.target.dataset.index);
-        startBlock(idx);
+        stopTimer(); // Stop current timer first
+        startBlock(idx, false); // Jump to block but don't auto-start
       });
     });
   }, 100);
