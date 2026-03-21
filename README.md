@@ -72,23 +72,22 @@ A web application that helps theater directors, stage managers, and production t
 ## Security & Compliance
 
 ### Enterprise-Grade Security
-- ✅ Row-Level Security (RLS) on all database tables
-- ✅ Encryption at rest (AES-256)
-- ✅ TLS 1.3 for all communications
-- ✅ JWT token-based authentication
-- ✅ Rate limiting & DDoS protection
-- ✅ Audit logging on all changes
-- ✅ Automated daily backups (encrypted, GitHub-stored)
-- ✅ API key rotation (monthly)
-- ✅ No hardcoded secrets in code
-- ✅ GitHub Secrets for production credentials
+- Row-Level Security (RLS) on all database tables
+- Encryption at rest (AES-256)
+- TLS 1.3 for all communications
+- JWT token-based authentication
+- Rate limiting & DDoS protection
+- Audit logging on all changes
+- Automated daily backups (encrypted, GitHub-stored)
+- API key rotation (monthly)
+- No hardcoded secrets in code
+- GitHub Secrets for production credentials
 
 ### Compliance
-- ✅ WCAG AAA accessibility
-- ✅ OWASP Top 10 mitigation
-- ✅ SOC 2 Type II ready
-- ✅ GDPR compliant (EU data residency available)
-- ✅ User data export & deletion capabilities
+- WCAG AAA accessibility
+- OWASP Top 10 mitigation
+- SOC 2 Type II ready
+- User data export & deletion capabilities
 
 ---
 
@@ -440,7 +439,6 @@ Special thanks to:
 ## Contact
 
 - **Project Lead**: Morgan Jewel
-- **Email**: morganjewel01@gmail.com
 - **GitHub**: MorganJewel
 
 ---
