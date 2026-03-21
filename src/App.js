@@ -5,6 +5,7 @@
 
 import './styles/main.css';
 import { initializeAuth, getCurrentUser, logout } from './utils/auth.js';
+import { RehearsalScheduler } from './components/RehearsalScheduler.js';
 
 // ============================================================
 // APPLICATION STATE
@@ -155,8 +156,32 @@ const renderPage = () => {
   const app = document.getElementById('app');
   
   if (currentUser) {
-    app.innerHTML = renderDashboard(currentUser);
-    attachDashboardListeners();
+    if (currentPage === 'scheduler') {
+      app.innerHTML = `
+        <div class="scheduler-wrapper">
+          <header class="dashboard-header">
+            <h1>⏱️ Rehearsal Scheduler</h1>
+            <div style="display: flex; gap: 1rem;">
+              <button class="btn-secondary" id="backBtn">← Back to Dashboard</button>
+              <button class="btn-secondary" id="logoutBtn2">Sign Out</button>
+            </div>
+          </header>
+          ${RehearsalScheduler()}
+        </div>
+      `;
+      document.getElementById('backBtn')?.addEventListener('click', () => {
+        currentPage = 'login';
+        renderPage();
+      });
+      document.getElementById('logoutBtn2')?.addEventListener('click', async () => {
+        await logout();
+        currentUser = null;
+        renderPage();
+      });
+    } else {
+      app.innerHTML = renderDashboard(currentUser);
+      attachDashboardListeners();
+    }
   } else {
     app.innerHTML = renderLoginPage();
     attachAuthListeners();
@@ -270,11 +295,12 @@ const attachDashboardListeners = () => {
   });
   
   createProductionBtn.addEventListener('click', () => {
-    alert('Production creation coming soon in Phase 1!');
+    currentPage = 'scheduler';
+    renderPage();
   });
   
   editProfileBtn.addEventListener('click', () => {
-    alert('Profile editing coming soon in Phase 1!');
+    alert('Profile editing coming soon!');
   });
 };
 

@@ -393,20 +393,215 @@ p { margin-bottom: 1rem; }
 }
 
 /* ============================================================
-   SKIP LINK (for keyboard users)
+   SCHEDULER COMPONENT
    ============================================================ */
 
-.skip-link {
-  position: absolute;
-  top: -40px;
-  left: 0;
-  background: var(--color-primary);
-  color: white;
-  padding: 8px;
-  text-decoration: none;
-  z-index: 10000;
+.scheduler-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding: 2rem;
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
 }
 
-.skip-link:focus {
-  top: 0;
+.timer-section {
+  background: var(--bg-primary);
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.timer-section h2 {
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+}
+
+.current-block {
+  background: var(--bg-secondary);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.block-label {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.block-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.timer-display-large {
+  background: linear-gradient(135deg, #0C447C 0%, #185FA5 100%);
+  color: white;
+  padding: 3rem 2rem;
+  border-radius: var(--border-radius);
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.timer-display-large .time {
+  font-size: 4rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.timer-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.btn-timer {
+  flex: 1;
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: 2px solid var(--color-primary);
+  background: var(--bg-primary);
+  color: var(--color-primary);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-timer:hover {
+  background: var(--color-primary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-timer:active {
+  transform: translateY(0);
+}
+
+.timer-info {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  text-align: center;
+  margin: 0;
+}
+
+.schedule-section {
+  background: var(--bg-primary);
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-section h3 {
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+}
+
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.schedule-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-left: 4px solid var(--border-color);
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.schedule-block:hover {
+  border-left-color: var(--color-primary);
+  background: #F9F8F4;
+}
+
+.schedule-block.active {
+  border-left-color: var(--color-success);
+  background: #EAF3DE;
+  font-weight: 600;
+}
+
+.block-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.block-type {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.35rem 0.6rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.block-type.scene {
+  background: #E3F2FD;
+  color: #0C447C;
+}
+
+.block-type.break {
+  background: #FFF3CD;
+  color: #856404;
+}
+
+.block-type.notes {
+  background: #F0F0F0;
+  color: #333;
+}
+
+.block-name-small {
+  flex: 1;
+  font-weight: 500;
+}
+
+.block-duration {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.btn-block {
+  padding: 0.5rem 1rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-block:hover {
+  background: var(--color-secondary);
+  transform: translateY(-2px);
+}
+
+.btn-block:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 1024px) {
+  .scheduler-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .timer-display-large .time {
+    font-size: 3rem;
+  }
 }
