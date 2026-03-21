@@ -222,20 +222,9 @@ const attachAuthListeners = () => {
         
         if (error) throw error;
         
-        // Create user profile in database
-        const { error: profileError } = await window.supabaseDb
-          .from('users')
-          .insert({
-            id: user.id,
-            email: user.email,
-            full_name: fullName,
-            role: 'actor'
-          });
-        
-        if (profileError && profileError.code !== 'PGRST116') throw profileError;
-        
         errorMessage.textContent = 'Account created! Check your email to verify, then sign in.';
         errorMessage.className = 'success-message';
+        form.reset();
       } else {
         // Sign in
         const { data, error } = await window.supabaseAuth.signInWithPassword({
@@ -307,7 +296,7 @@ const init = async () => {
     console.error('Initialization error:', error);
     document.getElementById('app').innerHTML = `
       <div class="error-container">
-        <p>Failed to initialize application</p>
+        <p>❌ Failed to initialize application</p>
         <p>${error.message}</p>
       </div>
     `;
