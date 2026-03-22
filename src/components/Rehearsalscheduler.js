@@ -4,7 +4,6 @@
 // ============================================================
 
 export const RehearsalScheduler = () => {
-  // Database functions (inline - using localStorage only)
   const saveSchedule = async (scheduleName, scheduleBlocks, userId) => {
     try {
       const savedSchedules = JSON.parse(localStorage.getItem('savedSchedules') || '[]');
@@ -36,14 +35,24 @@ export const RehearsalScheduler = () => {
     }
   };
 
-  // Sample schedule for testing
-  const schedule = [
+  // Check if loading a saved schedule
+  const loadedScheduleId = localStorage.getItem('loadScheduleId');
+  let schedule = [
     { id: 1, name: 'Scene 1: Opening', duration: 15, type: 'scene' },
     { id: 2, name: 'Break', duration: 5, type: 'break' },
     { id: 3, name: 'Scene 2: Act II', duration: 20, type: 'scene' },
     { id: 4, name: 'Technical Notes', duration: 10, type: 'notes' },
     { id: 5, name: 'Scene 3: Finale', duration: 12, type: 'scene' }
   ];
+
+  if (loadedScheduleId) {
+    const savedSchedules = JSON.parse(localStorage.getItem('savedSchedules') || '[]');
+    const found = savedSchedules.find(s => s.id === parseInt(loadedScheduleId));
+    if (found) {
+      schedule = found.blocks;
+      localStorage.removeItem('loadScheduleId');
+    }
+  }
 
   let currentBlockIndex = 0;
   let timeRemaining = 0;
@@ -144,8 +153,20 @@ export const RehearsalScheduler = () => {
           <p class="sched-name">${sched.name}</p>
           <p class="sched-date">${new Date(sched.createdAt).toLocaleDateString()}</p>
         </div>
+        <button class="btn-small" id="load-${sched.id}">Load</button>
       </div>
     `).join('');
+
+    // Attach load buttons
+    schedules.forEach(sched => {
+      const btn = document.getElementById(`load-${sched.id}`);
+      if (btn) {
+        btn.addEventListener('click', () => {
+          localStorage.setItem('loadScheduleId', sched.id.toString());
+          location.reload();
+        });
+      }
+    });
   };
 
   const HTML = `
