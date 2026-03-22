@@ -4,43 +4,38 @@
 // ============================================================
 
 export const RehearsalScheduler = () => {
-  // Database functions (inline)
+  // Database functions (inline - using localStorage only)
   const saveSchedule = async (scheduleName, scheduleBlocks, userId) => {
-  try {
-    // Store ONLY in browser localStorage
-    const savedSchedules = JSON.parse(localStorage.getItem('savedSchedules') || '[]');
-    const newSchedule = {
-      id: Date.now(),
-      name: scheduleName,
-      blocks: scheduleBlocks,
-      createdAt: new Date().toISOString()
-    };
-    savedSchedules.push(newSchedule);
-    localStorage.setItem('savedSchedules', JSON.stringify(savedSchedules));
-    
-    console.log('✅ Schedule saved:', scheduleName);
-    return { success: true, data: newSchedule };
-  } catch (error) {
-    console.error('Error saving schedule:', error);
-    return { success: false, error };
-  }
-};
+    try {
+      const savedSchedules = JSON.parse(localStorage.getItem('savedSchedules') || '[]');
+      const newSchedule = {
+        id: Date.now(),
+        name: scheduleName,
+        blocks: scheduleBlocks,
+        createdAt: new Date().toISOString()
+      };
+      savedSchedules.push(newSchedule);
+      localStorage.setItem('savedSchedules', JSON.stringify(savedSchedules));
+      
+      console.log('✅ Schedule saved:', scheduleName);
+      return { success: true, data: newSchedule };
+    } catch (error) {
+      console.error('Error saving schedule:', error);
+      return { success: false, error };
+    }
+  };
 
   const loadSchedules = async () => {
     try {
-      const { data, error } = await window.supabaseDb
-        .from('rehearsal_sessions')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      console.log('✅ Schedules loaded:', data.length);
-      return data || [];
+      const savedSchedules = JSON.parse(localStorage.getItem('savedSchedules') || '[]');
+      console.log('✅ Schedules loaded:', savedSchedules.length);
+      return savedSchedules;
     } catch (error) {
       console.error('Error loading schedules:', error);
       return [];
     }
   };
+
   // Sample schedule for testing
   const schedule = [
     { id: 1, name: 'Scene 1: Opening', duration: 15, type: 'scene' },
@@ -58,7 +53,7 @@ export const RehearsalScheduler = () => {
   const startBlock = (blockIndex, autoStart = true) => {
     currentBlockIndex = blockIndex;
     const block = schedule[blockIndex];
-    timeRemaining = block.duration * 60; // Convert to seconds
+    timeRemaining = block.duration * 60;
     isRunning = autoStart;
     updateDisplay();
     if (autoStart) startTimer();
@@ -73,7 +68,6 @@ export const RehearsalScheduler = () => {
 
       if (timeRemaining <= 0) {
         clearInterval(timerInterval);
-        // Auto-advance to next block
         if (currentBlockIndex < schedule.length - 1) {
           setTimeout(() => {
             startBlock(currentBlockIndex + 1);
@@ -125,7 +119,6 @@ export const RehearsalScheduler = () => {
       blockNameEl.textContent = currentBlock.name;
     }
 
-    // Update block highlights
     const blocks = document.querySelectorAll('.schedule-block');
     blocks.forEach((block, idx) => {
       if (idx === currentBlockIndex) {
@@ -134,6 +127,25 @@ export const RehearsalScheduler = () => {
         block.classList.remove('active');
       }
     });
+  };
+
+  const loadSavedSchedules = async () => {
+    const schedules = await loadSchedules();
+    const list = document.getElementById('savedSchedulesList');
+    
+    if (!schedules || schedules.length === 0) {
+      list.innerHTML = '<p class="placeholder">No saved schedules yet</p>';
+      return;
+    }
+
+    list.innerHTML = schedules.map(sched => `
+      <div class="saved-schedule-item">
+        <div class="sched-info">
+          <p class="sched-name">${sched.name}</p>
+          <p class="sched-date">${new Date(sched.createdAt).toLocaleDateString()}</p>
+        </div>
+      </div>
+    `).join('');
   };
 
   const HTML = `
@@ -195,7 +207,6 @@ export const RehearsalScheduler = () => {
     </div>
   `;
 
-  // Attach event listeners
   setTimeout(async () => {
     document.getElementById('startBtn')?.addEventListener('click', () => {
       if (currentBlockIndex === 0 && timeRemaining === 0) {
@@ -215,7 +226,6 @@ export const RehearsalScheduler = () => {
       });
     });
 
-    // Save schedule button
     document.getElementById('saveScheduleBtn')?.addEventListener('click', async () => {
       const name = document.getElementById('scheduleName')?.value;
       if (!name) {
@@ -232,29 +242,8 @@ export const RehearsalScheduler = () => {
       }
     });
 
-    // Load saved schedules on init
-    loadSavedSchedules();
+    await loadSavedSchedules();
   }, 100);
-
-  const loadSavedSchedules = async () => {
-    const schedules = await loadSchedules();
-    const list = document.getElementById('savedSchedulesList');
-    
-    if (schedules.length === 0) {
-      list.innerHTML = '<p class="placeholder">No saved schedules yet</p>';
-      return;
-    }
-
-    list.innerHTML = schedules.map(sched => `
-      <div class="saved-schedule-item">
-        <div class="sched-info">
-          <p class="sched-name">${sched.session_type}</p>
-          <p class="sched-date">${new Date(sched.session_date).toLocaleDateString()}</p>
-        </div>
-        <button class="btn-small" data-id="${sched.id}">Load</button>
-      </div>
-    `).join('');
-  };
 
   return HTML;
 };
