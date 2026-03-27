@@ -6,6 +6,7 @@
 import './styles/main.css';
 import { initializeAuth, getCurrentUser, logout } from './utils/auth.js';
 import { RehearsalScheduler } from './components/RehearsalScheduler.js';
+import { ProductionForm } from './components/ProductionForm.js';
 
 // ============================================================
 // APPLICATION STATE
@@ -157,7 +158,7 @@ const renderPage = () => {
   
   if (currentUser) {
     if (currentPage === 'scheduler') {
-      app.innerHTML = `
+      app.innerHTML = `      
         <div class="scheduler-wrapper">
           <header class="dashboard-header">
             <h1>⏱️ Rehearsal Scheduler</h1>
@@ -176,6 +177,20 @@ const renderPage = () => {
       document.getElementById('logoutBtn2')?.addEventListener('click', async () => {
         await logout();
         currentUser = null;
+        renderPage();
+      });
+    } else if (currentPage === 'production') {
+      app.innerHTML = `      
+        <div class="scheduler-wrapper">
+          <header class="dashboard-header">
+            <h1>🎬 Productions</h1>
+            <button class="btn-secondary" id="backBtn2">← Back to Dashboard</button>
+          </header>
+          ${ProductionForm()}
+        </div>
+      `;
+      document.getElementById('backBtn2')?.addEventListener('click', () => {
+        currentPage = 'login';
         renderPage();
       });
     } else {
@@ -320,12 +335,8 @@ const init = async () => {
     renderPage();
   } catch (error) {
     console.error('Initialization error:', error);
-    document.getElementById('app').innerHTML = `
-      <div class="error-container">
-        <p>❌ Failed to initialize application</p>
-        <p>${error.message}</p>
-      </div>
-    `;
+    const app = document.getElementById('app');
+    app.innerHTML = '<div class="error-container"><p>Failed to initialize application</p><p>' + error.message + '</p></div>';
   }
 };
 

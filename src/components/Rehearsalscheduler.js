@@ -1,16 +1,16 @@
 // ============================================================
-// REHEARSAL SCHEDULER - Schedule with Auto-Timers
-// Displays schedule blocks and auto-advances through them
+// REHEARSAL SCHEDULER - Schedule with Auto-Timers + Production Link
 // ============================================================
 
 export const RehearsalScheduler = () => {
-  const saveSchedule = async (scheduleName, scheduleBlocks, userId) => {
+  const saveSchedule = async (scheduleName, scheduleBlocks, productionId) => {
     try {
       const savedSchedules = JSON.parse(localStorage.getItem('savedSchedules') || '[]');
       const newSchedule = {
         id: Date.now(),
         name: scheduleName,
         blocks: scheduleBlocks,
+        productionId: productionId,
         createdAt: new Date().toISOString()
       };
       savedSchedules.push(newSchedule);
@@ -35,8 +35,11 @@ export const RehearsalScheduler = () => {
     }
   };
 
-  // Check if loading a saved schedule
-  const loadedScheduleId = localStorage.getItem('loadScheduleId');
+  const getProductions = () => {
+    return JSON.parse(localStorage.getItem('productions') || '[]');
+  };
+
+  // Sample schedule for testing
   let schedule = [
     { id: 1, name: 'Scene 1: Opening', duration: 15, type: 'scene' },
     { id: 2, name: 'Break', duration: 5, type: 'break' },
@@ -45,6 +48,8 @@ export const RehearsalScheduler = () => {
     { id: 5, name: 'Scene 3: Finale', duration: 12, type: 'scene' }
   ];
 
+  // Check if loading a saved schedule
+  const loadedScheduleId = localStorage.getItem('loadScheduleId');
   if (loadedScheduleId) {
     const savedSchedules = JSON.parse(localStorage.getItem('savedSchedules') || '[]');
     const found = savedSchedules.find(s => s.id === parseInt(loadedScheduleId));
@@ -140,6 +145,7 @@ export const RehearsalScheduler = () => {
 
   const loadSavedSchedules = async () => {
     const schedules = await loadSchedules();
+    const productions = getProductions();
     const list = document.getElementById('savedSchedulesList');
     
     if (!schedules || schedules.length === 0) {
@@ -147,15 +153,21 @@ export const RehearsalScheduler = () => {
       return;
     }
 
-    list.innerHTML = schedules.map(sched => `
-      <div class="saved-schedule-item">
-        <div class="sched-info">
-          <p class="sched-name">${sched.name}</p>
-          <p class="sched-date">${new Date(sched.createdAt).toLocaleDateString()}</p>
+    list.innerHTML = schedules.map(sched => {
+      const prod = productions.find(p => p.id === parseInt(sched.productionId));
+      const prodName = prod ? prod.title : 'No Production';
+      
+      return `
+        <div class="saved-schedule-item">
+          <div class="sched-info">
+            <p class="sched-name">${sched.name}</p>
+            <p class="sched-date">${new Date(sched.createdAt).toLocaleDateString()}</p>
+            <p class="sched-production">📽️ ${prodName}</p>
+          </div>
+          <button class="btn-small" id="load-${sched.id}">Load</button>
         </div>
-        <button class="btn-small" id="load-${sched.id}">Load</button>
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
     // Attach load buttons
     schedules.forEach(sched => {
@@ -199,6 +211,13 @@ export const RehearsalScheduler = () => {
             placeholder="Enter schedule name (e.g., 'Act 1 Blocking')"
             class="schedule-name-input"
           />
+          <div class="form-group">
+            <label for="prodSelect">Production</label>
+            <select id="prodSelect" class="schedule-name-input" required>
+              <option value="">-- Select a Production --</option>
+            </select>
+            <small style="color: var(--text-light); margin-top: 0.25rem;">Need a new production? <a href="#" id="createProdLink" style="color: var(--color-primary); text-decoration: underline;">Create one</a></small>
+          </div>
           <button class="btn-primary" id="saveScheduleBtn">Save Schedule</button>
         </div>
       </div>
@@ -229,6 +248,49 @@ export const RehearsalScheduler = () => {
   `;
 
   setTimeout(async () => {
+    // Populate production dropdown
+    const prodSelect = document.getElementById('prodSelect');
+    const productions = getProductions();
+    productions.forEach(prod => {
+      const option = document.createElement('option');
+      option.value = prod.id;
+      option.textContent = prod.title;
+      prodSelect.appendChild(option);
+    });
+
+    // Create production link
+    const createProdLink = document.getElementById('createProdLink');
+    if (createProdLink) {
+      createProdLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        const title = prompt('Production name:');
+        if (!title) return;
+        const playwright = prompt('Playwright name:');
+        if (!playwright) return;
+        
+        const prods = JSON.parse(localStorage.getItem('productions') || '[]');
+        const newProd = {
+          id: Date.now(),
+          title,
+          playwright,
+          createdAt: new Date().toISOString()
+        };
+        prods.push(newProd);
+        localStorage.setItem('productions', JSON.stringify(prods));
+        
+        // Reload production dropdown
+        prodSelect.innerHTML = '<option value="">-- Select a Production --</option>';
+        prods.forEach(prod => {
+          const option = document.createElement('option');
+          option.value = prod.id;
+          option.textContent = prod.title;
+          prodSelect.appendChild(option);
+        });
+        prodSelect.value = newProd.id;
+        alert('✅ Production created!');
+      });
+    }
+
     document.getElementById('startBtn')?.addEventListener('click', () => {
       if (currentBlockIndex === 0 && timeRemaining === 0) {
         startBlock(0, true);
@@ -249,14 +311,22 @@ export const RehearsalScheduler = () => {
 
     document.getElementById('saveScheduleBtn')?.addEventListener('click', async () => {
       const name = document.getElementById('scheduleName')?.value;
+      const prodId = document.getElementById('prodSelect')?.value;
+      
       if (!name) {
         alert('Please enter a schedule name');
         return;
       }
-      const result = await saveSchedule(name, schedule, 'current-user');
+      if (!prodId) {
+        alert('Please select a production');
+        return;
+      }
+      
+      const result = await saveSchedule(name, schedule, prodId);
       if (result.success) {
         alert('✅ Schedule saved!');
         document.getElementById('scheduleName').value = '';
+        document.getElementById('prodSelect').value = '';
         loadSavedSchedules();
       } else {
         alert('❌ Error saving schedule');
